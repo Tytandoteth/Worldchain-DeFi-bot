@@ -1,0 +1,16 @@
+{
+  "name": "@services/telegram-bot",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.12.2",
+    "@core/openai": "*"
+  }
+}

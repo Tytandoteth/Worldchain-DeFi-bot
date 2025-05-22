@@ -1,0 +1,155 @@
+[
+  {
+    "Name": "Morpho",
+    "Category": "Unknown",
+    "TVL": "$41.14m",
+    "1d Change": "+8.39%",
+    "Revenue 24h": "+16.62%",
+    "Volume 24h": "+4983320%",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Re7 Labs",
+    "Category": "Risk Curators",
+    "TVL": "$31.94m",
+    "1d Change": "+7.96%",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Uniswap",
+    "Category": "Unknown",
+    "TVL": "$4.34m",
+    "1d Change": "+3.62%",
+    "Revenue 24h": "+24.73%",
+    "Volume 24h": "+52.14%",
+    "Fees/Vol (raw)": "$4,169"
+  },
+  {
+    "Name": "PoolTogether",
+    "Category": "Unknown",
+    "TVL": "$409,069",
+    "1d Change": "+12.97%",
+    "Revenue 24h": "+12.78%",
+    "Volume 24h": "+558%",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Meme Wallet",
+    "Category": "Launchpad",
+    "TVL": "$13,754",
+    "1d Change": "+13.11%",
+    "Revenue 24h": "+7.08%",
+    "Volume 24h": "+47.73%",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Magnify Cash",
+    "Category": "Lending",
+    "TVL": "$9,420",
+    "1d Change": "+0.80%",
+    "Revenue 24h": "+1.86%",
+    "Volume 24h": "+1.02%",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Gamma",
+    "Category": "Liquidity manager",
+    "TVL": "$5,213",
+    "1d Change": "+33.95%",
+    "Revenue 24h": "+41.50%",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": "$0"
+  },
+  {
+    "Name": "DackieSwap",
+    "Category": "Unknown",
+    "TVL": "$77.18",
+    "1d Change": "+10.39%",
+    "Revenue 24h": "+7.57%",
+    "Volume 24h": "+51.83%",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Fisclend Finance",
+    "Category": "Lending",
+    "TVL": "$56.05",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "PWN",
+    "Category": "Lending",
+    "TVL": "$0",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Golden Otter Hub",
+    "Category": "Farm",
+    "TVL": "$0",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "DNA",
+    "Category": "Farm",
+    "TVL": "$0",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Worldle",
+    "Category": "Gaming",
+    "TVL": "$408",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": "$408"
+  },
+  {
+    "Name": "Holdstation",
+    "Category": "Unknown",
+    "TVL": "$50",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "HumanFi",
+    "Category": "DEX Aggregator",
+    "TVL": "$43",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": "$4,274"
+  },
+  {
+    "Name": "Swing",
+    "Category": "DEX Aggregator",
+    "TVL": "$0",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  },
+  {
+    "Name": "Metal X",
+    "Category": "Gaming",
+    "TVL": "",
+    "1d Change": "",
+    "Revenue 24h": "",
+    "Volume 24h": "",
+    "Fees/Vol (raw)": ""
+  }
+]

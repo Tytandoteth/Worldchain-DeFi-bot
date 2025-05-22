@@ -1,0 +1,157 @@
+[
+  {
+    "Name": "Worldcoin",
+    "Category": "Identity",
+    "Description": "Core app for World ID verification and WLD token management."
+  },
+  {
+    "Name": "UNO",
+    "Category": "Finance",
+    "Description": "A wallet app for managing and transferring tokens."
+  },
+  {
+    "Name": "ORO",
+    "Category": "Rewards",
+    "Description": "Daily reward app on World Chain."
+  },
+  {
+    "Name": "Morpho",
+    "Category": "DeFi Lending",
+    "Description": "DeFi lending and borrowing platform integrated with World ID."
+  },
+  {
+    "Name": "ORB",
+    "Category": "Identity",
+    "Description": "App for claiming ORB tokens."
+  },
+  {
+    "Name": "Worldle",
+    "Category": "Game",
+    "Description": "Word puzzle game similar to Wordle."
+  },
+  {
+    "Name": "Holdstation Wallet",
+    "Category": "Wallet",
+    "Description": "Wallet app for trading, transferring, and earning tokens."
+  },
+  {
+    "Name": "FLAG!",
+    "Category": "Game",
+    "Description": "Capture-the-flag style game to earn $FLAG tokens."
+  },
+  {
+    "Name": "Eggs Vault",
+    "Category": "Rewards",
+    "Description": "Daily egg-cracking reward game."
+  },
+  {
+    "Name": "Republic",
+    "Category": "Investment",
+    "Description": "Investment platform for startups and private equity."
+  },
+  {
+    "Name": "Add Money",
+    "Category": "Finance",
+    "Description": "App to add funds to your World App wallet."
+  },
+  {
+    "Name": "Cash Daily",
+    "Category": "Rewards",
+    "Description": "Daily cash rewards app."
+  },
+  {
+    "Name": "LOCO",
+    "Category": "Game",
+    "Description": "Gaming app within the World App ecosystem."
+  },
+  {
+    "Name": "Cash Convert",
+    "Category": "Finance",
+    "Description": "Currency conversion tool."
+  },
+  {
+    "Name": "DNA",
+    "Category": "Identity",
+    "Description": "Digital identity management app."
+  },
+  {
+    "Name": "ASTRACOIN",
+    "Category": "Cryptocurrency",
+    "Description": "App related to the ASTRACOIN token."
+  },
+  {
+    "Name": "Orb App",
+    "Category": "Identity",
+    "Description": "App for managing Orb-related activities."
+  },
+  {
+    "Name": "HumanFi",
+    "Category": "DeFi",
+    "Description": "Earn points and swap tokens daily."
+  },
+  {
+    "Name": "TRIBO Vault",
+    "Category": "Finance",
+    "Description": "Vault app for managing TRIBO tokens."
+  },
+  {
+    "Name": "Human Tap",
+    "Category": "Social",
+    "Description": "Social interaction platform."
+  },
+  {
+    "Name": "Golden Otter Maze Game",
+    "Category": "Game",
+    "Description": "Maze game featuring Golden Otter characters."
+  },
+  {
+    "Name": "DNA Wallet",
+    "Category": "Wallet",
+    "Description": "Wallet app for managing DNA tokens."
+  },
+  {
+    "Name": "THE BOX",
+    "Category": "Game",
+    "Description": "Mystery box game with rewards."
+  },
+  {
+    "Name": "Golden Otter Hub",
+    "Category": "Game",
+    "Description": "Central hub for Golden Otter games."
+  },
+  {
+    "Name": "Earn $WLD",
+    "Category": "Rewards",
+    "Description": "App to earn Worldcoin tokens."
+  },
+  {
+    "Name": "Aqua",
+    "Category": "Finance",
+    "Description": "Financial services app within World App."
+  },
+  {
+    "Name": "EarnOS",
+    "Category": "Rewards",
+    "Description": "Operating system for earning rewards."
+  },
+  {
+    "Name": "PUF",
+    "Category": "Game",
+    "Description": "Game app within the World App ecosystem."
+  },
+  {
+    "Name": "Farcade",
+    "Category": "Game",
+    "Description": "Arcade-style gaming platform."
+  },
+  {
+    "Name": "Squadletics",
+    "Category": "Fitness",
+    "Description": "Fitness tracking and competition app."
+  },
+  {
+    "Name": "Credit",
+    "Category": "Finance",
+    "Description": "Microloan app offering up to $100 loans."
+  }
+]

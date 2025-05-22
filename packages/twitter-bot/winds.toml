@@ -1,0 +1,11 @@
+name = "twitter-bot"
+entry = "dist/index.js"
+schedule = "0 */2 * * *"     # every 2 hours
+env = [
+  "OPENAI_API_KEY",
+  "TWITTER_APP_KEY",
+  "TWITTER_APP_SECRET",
+  "TWITTER_ACCESS_TOKEN",
+  "TWITTER_ACCESS_SECRET",
+  "LAST_REPLY_ID"
+]

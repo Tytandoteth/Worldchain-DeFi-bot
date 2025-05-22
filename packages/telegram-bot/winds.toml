@@ -1,0 +1,3 @@
+name = "telegram-bot"
+entry = "dist/index.js"
+env = ["OPENAI_API_KEY", "TELEGRAM_BOT_TOKEN"]

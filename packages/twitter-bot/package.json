@@ -1,0 +1,16 @@
+{
+  "name": "@services/twitter-bot",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "twitter-api-v2": "^1.15.0",
+    "@core/openai": "*"
+  }
+}

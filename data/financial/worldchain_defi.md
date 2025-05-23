@@ -4,7 +4,7 @@
 - **Chain ID**: 480
 - **Chain Name**: Worldchain
 - **Token Symbol**: WLD
-- **Total Value Locked (TVL)**: $41.42M
+- **Total Value Locked (TVL)**: $41.78M
 
 ## User Activity
 
@@ -17,6 +17,6 @@ No protocols currently tracked on Worldchain.
 
 ---
 
-Data last updated: 2025-05-23T01:00:01.492Z
+Data last updated: 2025-05-23T04:00:05.847Z
 Source: DefiLlama Pro API
 Chain ID: 480

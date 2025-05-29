@@ -1,6 +1,6 @@
 import { Context, Telegraf } from "telegraf";
-import { askGPT } from "../../core/src/openai.js";
-import { createRAG } from "../../core/src/simple-rag.js";
+import { askGPT } from "../../core/dist/openai.js";
+import { createRAG } from "../../core/dist/simple-rag.js";
 
 /**
  * Register all command handlers for the Telegram bot

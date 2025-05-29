@@ -1,6 +1,5 @@
 import cron from 'node-cron';
 import defiLlama from './defillama.js';
-import twitterClient from './twitter.js';
 import { createRAG } from './simple-rag.js';
 import { askGPT } from './openai.js';
 import dotenv from 'dotenv';
@@ -35,180 +34,118 @@ export async function initializeScheduledUpdates(): Promise<void> {
     console.warn('OpenAI API key not found, RAG system not initialized');
   }
   
-  // Schedule daily DeFi updates to Twitter
-  scheduleTwitterUpdates();
-  
-  // Check Twitter for mentions every hour
-  scheduleTwitterMonitoring();
+  // Schedule regular DeFi data updates
+  scheduleDeFiDataUpdates();
 }
 
 /**
- * Schedule daily DeFi updates to Twitter
+ * Schedule regular DeFi data updates
  */
-function scheduleTwitterUpdates(): void {
-  // Post a DeFi update at 9 AM every day
-  cron.schedule('0 9 * * *', async () => {
-    console.log('Running scheduled Twitter DeFi update');
+function scheduleDeFiDataUpdates(): void {
+  // Update DeFi data every 4 hours
+  cron.schedule('0 */4 * * *', async () => {
+    console.log('Running scheduled DeFi data update');
     
     try {
-      // Check if Twitter client is initialized
-      if (!twitterClient.isInitialized()) {
-        console.log('Twitter client not initialized, skipping DeFi update');
-        return;
-      }
-      
-      // Get latest DeFi data
+      // Update DeFi data
       await defiLlama.updateWorldchainData();
+      console.log('WorldChain DeFi data updated successfully');
       
-      // Generate a tweet about Worldchain DeFi protocols
-      const tweet = await generateDeFiTweet();
-      
-      // Post to Twitter
-      if (tweet) {
-        const success = await twitterClient.postDeFiUpdate(tweet);
-        if (success) {
-          console.log('Successfully posted DeFi update to Twitter');
-        } else {
-          console.error('Failed to post DeFi update to Twitter');
+      // Generate insights for logging purposes
+      if (ragSystem) {
+        const insights = await generateDeFiInsights();
+        if (insights) {
+          console.log('Generated DeFi insights:', insights);
         }
       }
     } catch (error) {
-      console.error('Error in scheduled Twitter DeFi update:', error);
+      console.error('Error in scheduled DeFi data update:', error);
     }
   });
   
-  console.log('Scheduled daily Twitter DeFi updates at 9 AM');
+  console.log('Scheduled WorldChain DeFi data updates every 4 hours');
 }
 
 /**
- * Schedule hourly Twitter mention monitoring
+ * Generate insights about WorldChain DeFi protocols for internal use
+ * @returns Insights about WorldChain DeFi
  */
-function scheduleTwitterMonitoring(): void {
-  // Check for Twitter mentions every hour
-  cron.schedule('0 * * * *', async () => {
-    console.log('Running scheduled Twitter mention monitoring');
-    
-    try {
-      // Check if Twitter client is initialized
-      if (!twitterClient.isInitialized()) {
-        console.log('Twitter client not initialized, skipping mention monitoring');
-        return;
-      }
-      
-      // Check if RAG system is initialized
-      if (!ragSystem) {
-        console.log('RAG system not initialized, monitoring mentions without response capability');
-        await twitterClient.monitorMentions();
-        return;
-      }
-      
-      // Monitor Twitter mentions with RAG system for responding to queries
-      await twitterClient.monitorMentions(ragSystem);
-    } catch (error) {
-      console.error('Error in scheduled Twitter mention monitoring:', error);
-    }
-  });
-  
-  console.log('Scheduled hourly Twitter mention monitoring');
-}
-
-/**
- * Generate a tweet about Worldchain DeFi protocols, mini apps or protocol statistics
- * based on a rotating schedule
- */
-async function generateDeFiTweet(): Promise<string | null> {
-  if (!ragSystem || !process.env.OPENAI_API_KEY) {
-    console.error('Cannot generate tweet: RAG system or OpenAI API key not available');
-    return null;
-  }
-  
+async function generateDeFiInsights(): Promise<string | null> {
   try {
-    // Determine which type of tweet to generate based on the day of the week
-    const day = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-    let tweetType: 'defi' | 'miniapps' | 'stats';
-    
-    if (day % 3 === 0) { // Sunday, Wednesday, Saturday
-      tweetType = 'defi';
-    } else if (day % 3 === 1) { // Monday, Thursday
-      tweetType = 'miniapps';
-    } else { // Tuesday, Friday
-      tweetType = 'stats';
+    if (!ragSystem) {
+      console.error('RAG system not initialized, cannot generate insights');
+      return null;
     }
     
-    console.log(`Generating ${tweetType} tweet for day ${day}`);
+    // Get current date to determine what type of insights to generate
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
     
-    let relevantDocs;
-    let tweetPrompt;
-    let systemPrompt;
+    let insightTopic: string;
+    let query: string;
     
-    switch (tweetType) {
-      case 'defi':
-        // Get relevant documents about Worldchain protocols
-        relevantDocs = await ragSystem.findRelevantDocuments('Worldchain DeFi protocol TVL rankings', 3);
-        tweetPrompt = 'Generate a concise tweet with the latest Worldchain DeFi protocol rankings and TVL data. Make it engaging and informative.';
-        systemPrompt = `You are MAGI AI, a DeFi data analyst. Use the following context to generate a tweet about Worldchain DeFi protocols.
-          
-          CONTEXT:
-          ${ragSystem.formatContext(relevantDocs)}
-          
-          The tweet MUST:
-          1. Be under 280 characters
-          2. Mention specific protocol names and TVL figures
-          3. Include hashtags #Worldchain #DeFi #WorldcoinApp
-          4. Be informative yet engaging
-          5. NOT include links (they will be added separately)
-        `;
+    // Rotate through different topics based on the day of the week
+    switch (dayOfWeek) {
+      case 0: // Sunday - Weekly recap
+        insightTopic = 'weekly recap';
+        query = 'Provide a weekly recap of WorldChain DeFi performance';
+        break;
+      
+      case 1: // Monday - Top protocols
+        insightTopic = 'top protocols';
+        query = 'List the top 3 WorldChain protocols by TVL with stats';
+        break;
+      
+      case 2: // Tuesday - Protocol comparison
+        insightTopic = 'protocol comparison';
+        query = 'Compare two popular WorldChain protocols';
         break;
         
-      case 'miniapps':
-        // Get relevant documents about Worldchain mini apps
-        relevantDocs = await ragSystem.findRelevantDocuments('Worldchain mini apps overview', 3);
-        tweetPrompt = 'Generate a concise tweet highlighting interesting Worldchain mini apps. Focus on one or two specific apps in a particular category.';
-        systemPrompt = `You are MAGI AI, a Worldchain expert. Use the following context to generate a tweet about Worldchain mini apps.
-          
-          CONTEXT:
-          ${ragSystem.formatContext(relevantDocs)}
-          
-          The tweet MUST:
-          1. Be under 280 characters
-          2. Highlight one or two specific mini apps by name
-          3. Briefly explain what they do or why they're interesting
-          4. Include hashtags #Worldchain #MiniApps #WorldcoinApp
-          5. Be written in an exciting, discovery-oriented tone
-          6. NOT include links (they will be added separately)
-        `;
+      case 3: // Wednesday - Mini apps
+        insightTopic = 'mini apps';
+        query = 'Highlight interesting mini apps on WorldChain';
         break;
-        
-      case 'stats':
-        // Get relevant documents about protocol statistics
-        relevantDocs = await ragSystem.findRelevantDocuments('Worldchain protocol statistics', 3);
-        tweetPrompt = 'Generate a concise tweet highlighting interesting statistics about a Worldchain protocol. Focus on user growth, impressions, or financial metrics.';
-        systemPrompt = `You are MAGI AI, a data analyst. Use the following context to generate a tweet about Worldchain protocol statistics.
-          
-          CONTEXT:
-          ${ragSystem.formatContext(relevantDocs)}
-          
-          The tweet MUST:
-          1. Be under 280 characters
-          2. Highlight one specific protocol by name
-          3. Include at least one impressive statistic (user growth, TVL, etc.)
-          4. Include hashtags #Worldchain #ProtocolStats #WorldcoinApp
-          5. Be written in a data-driven, analytical tone
-          6. NOT include links (they will be added separately)
-        `;
+      
+      case 4: // Thursday - DeFi tip
+        insightTopic = 'DeFi tip';
+        query = 'Provide DeFi tips for WorldChain users';
+        break;
+      
+      case 5: // Friday - Protocol feature
+        insightTopic = 'protocol feature';
+        query = 'Highlight unique features of WorldChain protocols';
+        break;
+      
+      case 6: // Saturday - Market trend
+        insightTopic = 'market trend';
+        query = 'Share insights on current WorldChain DeFi market trends';
+        break;
+      
+      default:
+        insightTopic = 'general update';
+        query = 'Provide an update on WorldChain DeFi ecosystem';
         break;
     }
     
-    // Generate the tweet using GPT
-    const tweet = await askGPT(tweetPrompt, systemPrompt);
+    console.log(`Generating ${insightTopic} insights`);
     
-    return tweet;
+    // Find relevant documents for context
+    const relevantDocs = await ragSystem.findRelevantDocuments(query, 3);
+    const context = ragSystem.formatContext(relevantDocs);
+    
+    // Generate the insights with GPT
+    const insightPrompt = `Generate informative insights about WorldChain ${insightTopic}. Use this context: ${context}`;
+    
+    const insights = await askGPT(insightPrompt, 'You are a DeFi expert analyzing WorldChain data. Be informative and accurate.');
+    
+    return insights;
   } catch (error) {
-    console.error('Error generating tweet:', error);
+    console.error('Error generating DeFi insights:', error);
     return null;
   }
 }
 
 export default {
-  initializeScheduledUpdates
+  initializeScheduledUpdates,
+  generateDeFiInsights // Export for potential use in admin functions
 };

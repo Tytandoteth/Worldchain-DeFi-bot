@@ -1,8 +1,8 @@
 import { Telegraf, Context } from "telegraf";
-import { askGPT } from "../../core/src/openai.js";
-import defiLlama from "../../core/src/defillama.js";
-import { createRAG } from "../../core/src/simple-rag.js";
-import scheduledUpdates from "../../core/src/scheduled-updates.js";
+import { askGPT } from "../../core/dist/openai.js";
+import defiLlama from "../../core/dist/defillama.js";
+import { createRAG } from "../../core/dist/simple-rag.js";
+import scheduledUpdates from "../../core/dist/scheduled-updates.js";
 import { registerBotCommands } from "./bot-commands.js";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";

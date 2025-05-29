@@ -8,10 +8,11 @@
   ],
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
+    "build": "./build.sh",
     "lint": "turbo run lint",
-    "start": "node app.js",
-    "postinstall": "npm run build"
+    "start": "node railway-deploy.js",
+    "start:local": "node app.js",
+    "railway": "node railway-deploy.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

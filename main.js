@@ -1,5 +1,6 @@
 // Main entry point for WorldChain DeFi Bot with enhanced data accuracy
 const { Telegraf } = require('telegraf');
+const express = require('express');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
@@ -71,17 +72,55 @@ async function setupBot() {
     logger.logConversation(ctx, 'error', err.message, { error_type: err.name });
   });
   
-  // Start the bot
-  await bot.launch();
-  console.log('Bot is running with enhanced data accuracy!');
+  // Create express app for webhook and health check
+  const app = express();
+  
+  // Add health check endpoint
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+  
+  // Determine launch method based on environment
+  if (process.env.RAILWAY_STATIC_URL) {
+    // Production: Use webhook mode
+    const WEBHOOK_DOMAIN = process.env.RAILWAY_STATIC_URL;
+    const PORT = process.env.PORT || 3000;
+    
+    // Set webhook path
+    const WEBHOOK_PATH = `/telegram-webhook/${process.env.TELEGRAM_BOT_TOKEN}`;
+    
+    // Mount the webhook handling middleware
+    app.use(bot.webhookCallback(WEBHOOK_PATH));
+    
+    // Start express server
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+    
+    // Set webhook
+    await bot.telegram.setWebhook(`${WEBHOOK_DOMAIN}${WEBHOOK_PATH}`);
+    console.log(`Webhook set to ${WEBHOOK_DOMAIN}${WEBHOOK_PATH}`);
+  } else {
+    // Development: Use polling mode
+    await bot.launch();
+    console.log('Bot is running in polling mode with enhanced data accuracy!');
+  }
   
   // Enable graceful stop
-  process.once('SIGINT', () => {
+  process.once('SIGINT', async () => {
     console.log('Shutting down...');
+    if (process.env.RAILWAY_STATIC_URL) {
+      // Remove webhook before stopping in webhook mode
+      await bot.telegram.deleteWebhook();
+    }
     bot.stop('SIGINT');
   });
-  process.once('SIGTERM', () => {
+  process.once('SIGTERM', async () => {
     console.log('Shutting down...');
+    if (process.env.RAILWAY_STATIC_URL) {
+      // Remove webhook before stopping in webhook mode
+      await bot.telegram.deleteWebhook();
+    }
     bot.stop('SIGTERM');
   });
 }

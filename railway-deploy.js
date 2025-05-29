@@ -2,6 +2,7 @@
 // This file directly includes the necessary modules without requiring a complex build setup
 
 const { Telegraf } = require('telegraf');
+const express = require('express');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
@@ -894,13 +895,53 @@ bot.catch((err, ctx) => {
   ctx.reply('An error occurred. Please try again later.');
 });
 
+// Create express app for webhook and health check
+const app = express();
+
+// Add health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Start the bot
 console.log('Starting WorldChain DeFi Bot...');
-bot.launch().then(() => {
-  console.log('Bot is running!');
-}).catch(error => {
-  console.error('Error starting bot:', error);
-});
+
+// Determine launch method based on environment
+if (process.env.RAILWAY_STATIC_URL) {
+  // Production: Use webhook mode
+  const WEBHOOK_DOMAIN = process.env.RAILWAY_STATIC_URL;
+  const PORT = process.env.PORT || 3000;
+  
+  // Set webhook path
+  const WEBHOOK_PATH = `/telegram-webhook/${process.env.TELEGRAM_BOT_TOKEN}`;
+  
+  // Mount the webhook handling middleware
+  app.use(bot.webhookCallback(WEBHOOK_PATH));
+  
+  // Start express server
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Bot is running in webhook mode!`);
+  });
+  
+  // Set webhook
+  bot.telegram.setWebhook(`${WEBHOOK_DOMAIN}${WEBHOOK_PATH}`)
+    .then(() => {
+      console.log(`Webhook set to ${WEBHOOK_DOMAIN}${WEBHOOK_PATH}`);
+    })
+    .catch(error => {
+      console.error('Error setting webhook:', error);
+    });
+} else {
+  // Development: Use polling mode
+  bot.launch()
+    .then(() => {
+      console.log('Bot is running in polling mode!');
+    })
+    .catch(error => {
+      console.error('Error starting bot:', error);
+    });
+}
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));

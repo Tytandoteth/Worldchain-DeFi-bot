@@ -1,0 +1,298 @@
+{
+  "timestamp": 1748498782616,
+  "protocols": {
+    "multichainz": {
+      "name": "MultichainZ",
+      "description": "Omnichain money markets for Real-World Assets and Liquid Staking Derivatives",
+      "tvl": 0,
+      "category": "Lending",
+      "website": "https://www.multichainz.com",
+      "chains": [
+        "Plume Mainnet"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498760322,
+      "source": "api"
+    },
+    "mirageprotocol": {
+      "name": "Mirage Protocol",
+      "description": "Mirage is a composable liquidity layer. Users can deposit collateral and borrow a self-repaying stablecoin loan powered by perps",
+      "tvl": 0,
+      "category": "Derivatives",
+      "website": "http://mirage.money/",
+      "chains": [
+        "Aptos"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498762195,
+      "source": "api"
+    },
+    "moonchain": {
+      "name": "Moonchain",
+      "description": "The MXC Moonchain zkEVM is an IoT-centric L3 on Arbitrum forked from the Taiko codebase",
+      "tvl": 0,
+      "category": "Chain",
+      "website": "https://www.moonchain.com/",
+      "chains": [
+        "Arbitrum"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498763079,
+      "source": "api"
+    },
+    "liquis": {
+      "name": "Liquis",
+      "description": "Liquis is a liquid governance wrapper for Bunni Pro, a liquidity management solution on top of Uniswap v3. With Liquis, users gain access to max-locked veLIT with secondary liquidity, subsidizing its opportunity cost",
+      "tvl": 0,
+      "category": "Yield",
+      "website": "https://www.liquis.app/",
+      "chains": [
+        "Ethereum"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498770779,
+      "source": "api"
+    },
+    "moonchainswap": {
+      "name": "Moonchain Swap",
+      "description": "Decentralized exchange on Moonchain",
+      "tvl": 0,
+      "category": "Dexs",
+      "website": "https://swap.moonchain.com/#/",
+      "chains": [
+        "Moonchain"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498776402,
+      "source": "api"
+    },
+    "mahalend": {
+      "name": "MahaLend",
+      "description": "MahaLend is a lending protocol that allows you to leverage DeFi yields with ARTH.",
+      "tvl": 0,
+      "category": "Lending",
+      "website": "http://mahalend.com",
+      "chains": [
+        "Ethereum",
+        "Arbitrum"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498777822,
+      "source": "api"
+    },
+    "clutchmarkets": {
+      "name": "Clutch Markets",
+      "description": "The first fully on-chain decentralized parlay platform. Bet on sports , crypto and politics",
+      "tvl": 0,
+      "category": "Prediction Market",
+      "website": "https://clutch.market",
+      "chains": [
+        "Arbitrum",
+        "ApeChain"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498778727,
+      "source": "api"
+    },
+    "kintsugi": {
+      "name": "Kintsugi",
+      "description": "Radically open #Bitcoin on Kusama Network, canary network of @interlayHQ",
+      "tvl": 0,
+      "category": "Cross Chain Bridge",
+      "website": "https://kintsugi.interlay.io",
+      "chains": [
+        "Kintsugi"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498779751,
+      "source": "api"
+    },
+    "okcoin": {
+      "name": "Okcoin",
+      "description": "Join the fastest growing global cryptocurrency exchange — with the lowest fees around.",
+      "tvl": 0,
+      "category": "CEX",
+      "website": "https://www.okcoin.com",
+      "chains": [
+        "OKExChain",
+        "Tron",
+        "Avalanche",
+        "Ethereum",
+        "Polygon",
+        "Bitcoin"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498781533,
+      "source": "api"
+    },
+    "evoqfinance": {
+      "name": "Evoq Finance",
+      "description": "Evoq Finance is a p2p-based lending optimizer that operates alongside existing pool-based lending protocols, such as Aave, Compound, and Venus, to provide better rates for both suppliers and borrowers through peer-to-peer (p2p) matching.",
+      "tvl": 0,
+      "category": "Lending",
+      "website": "https://evoq.finance",
+      "chains": [
+        "Binance"
+      ],
+      "change_1d": 0,
+      "change_7d": 0,
+      "last_updated": 1748498782607,
+      "source": "api"
+    },
+    "morpho": {
+      "name": "Morpho",
+      "description": "Lending protocol optimizing liquidity utilization across multiple chains including WorldChain.",
+      "tvl": "$43.99M",
+      "category": "Lending",
+      "website": "https://morpho.org",
+      "chains": "18 chains",
+      "launched": "2023 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "re7labs": {
+      "name": "Re7 Labs",
+      "description": "Risk Curators protocol operating across multiple chains including WorldChain.",
+      "tvl": "$33.09M",
+      "category": "Risk Curators",
+      "website": "https://re7labs.com",
+      "chains": "10 chains",
+      "launched": "2023 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "uniswap": {
+      "name": "Uniswap",
+      "description": "Leading decentralized exchange protocol with presence on WorldChain and many other chains.",
+      "tvl": "$5.15M",
+      "category": "DEX",
+      "website": "https://uniswap.org",
+      "chains": "35 chains",
+      "launched": "2023 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "pooltogether": {
+      "name": "PoolTogether",
+      "description": "No-loss savings protocol utilizing prize-linked savings accounts across multiple chains.",
+      "tvl": "$458,028",
+      "category": "Savings",
+      "website": "https://pooltogether.com",
+      "chains": "8 chains",
+      "launched": "2023 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "memewallet": {
+      "name": "Meme Wallet",
+      "description": "Launchpad protocol focused on meme tokens on WorldChain.",
+      "tvl": "$14,583",
+      "category": "Launchpad",
+      "website": "https://memewallet.xyz",
+      "chains": "1 chain",
+      "launched": "2024 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "magnify": {
+      "name": "Magnify Cash",
+      "description": "Lending protocol native to WorldChain with focus on capital efficiency.",
+      "tvl": "$9,280",
+      "category": "Lending",
+      "website": "https://magnify.cash",
+      "chains": "1 chain",
+      "launched": "2024 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "gamma": {
+      "name": "Gamma",
+      "description": "Liquidity management protocol operating across multiple chains including WorldChain.",
+      "tvl": "$2,895",
+      "category": "Liquidity manager",
+      "website": "https://gamma.xyz",
+      "chains": "36 chains",
+      "launched": "2023 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "dackieswap": {
+      "name": "DackieSwap",
+      "description": "Decentralized exchange with multi-chain presence including WorldChain.",
+      "tvl": "$80.26",
+      "category": "DEX",
+      "website": "https://dackieswap.xyz",
+      "chains": "9 chains",
+      "launched": "2024 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "fisclendfinance": {
+      "name": "Fisclend Finance",
+      "description": "Lending protocol with focus on cross-chain functionality.",
+      "tvl": "$56.05",
+      "category": "Lending",
+      "website": "https://fisclend.finance",
+      "chains": "3 chains",
+      "launched": "2024 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "worldle": {
+      "name": "Worldle",
+      "description": "Gaming protocol on WorldChain with integration to World ID.",
+      "tvl": "$380",
+      "category": "Gaming",
+      "website": "https://worldle.xyz",
+      "chains": "1 chain",
+      "launched": "2024 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    },
+    "humanfi": {
+      "name": "HumanFi",
+      "description": "DEX Aggregator leveraging proof-of-humanity for enhanced functionality.",
+      "tvl": "$61",
+      "category": "DEX Aggregator",
+      "website": "https://humanfi.xyz",
+      "chains": "1 chain",
+      "launched": "2024 on WorldChain",
+      "last_updated": 1748498782616,
+      "source": "local",
+      "change_1d": 0,
+      "change_7d": 0
+    }
+  },
+  "version": 2,
+  "lastRefreshAttempt": 1748498782616,
+  "refreshSuccess": true
+}

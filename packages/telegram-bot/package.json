@@ -1,5 +1,5 @@
 {
-  "name": "@services/telegram-bot",
+  "name": "@worldchain/telegram-bot",
   "version": "0.0.1",
   "type": "module",
   "main": "dist/index.js",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "telegraf": "^4.12.2",
-    "@core/openai": "*"
+    "@worldchain/core": "*",
+    "dotenv": "^16.3.1"
   }
 }

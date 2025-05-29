@@ -1,14 +1,17 @@
 {
-  "name": "magi-ai-bot",
+  "name": "worldchain-defi-bot",
   "private": true,
   "packageManager": "npm@10.8.3",
   "workspaces": [
-    "packages/*"
+    "packages/core",
+    "packages/telegram-bot"
   ],
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "start": "node app.js",
+    "postinstall": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

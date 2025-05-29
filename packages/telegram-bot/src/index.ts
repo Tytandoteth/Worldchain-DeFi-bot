@@ -1,9 +1,8 @@
-import { Telegraf } from "telegraf";
-import { askGPT } from "../../core/dist/openai.js";
-import defiLlama from "../../core/dist/defillama.js";
-import { createRAG } from "../../core/dist/simple-rag.js";
-import scheduledUpdates from "../../core/dist/scheduled-updates.js";
-import twitterClient from "../../core/dist/twitter.js";
+import { Telegraf, Context } from "telegraf";
+import { askGPT } from "../../core/src/openai.js";
+import defiLlama from "../../core/src/defillama.js";
+import { createRAG } from "../../core/src/simple-rag.js";
+import scheduledUpdates from "../../core/src/scheduled-updates.js";
 import { registerBotCommands } from "./bot-commands.js";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
@@ -79,23 +78,83 @@ async function main(): Promise<void> {
   // Initialize scheduled updates system (includes Twitter integration)
   await scheduledUpdates.initializeScheduledUpdates();
   
-  // Log Twitter client status
-  if (twitterClient.isInitialized()) {
-    console.log('Twitter integration enabled - scheduled updates will be posted to Twitter');
-  } else {
-    console.log('Twitter integration not fully configured - updates will not be posted to Twitter');
-  }
+  // Initialize data submission system
+  console.log('User data submission system initialized');
   
   // Initialize the Telegram bot
   const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
   
   // Basic command handlers
   bot.start((ctx) => {
-    ctx.reply("Hi! I'm MAGI AI. Ask me anything about Worldchain, DeFi protocols, and mini apps!");
+    ctx.reply("Hi! I'm WorldChain DeFi Bot. Ask me anything about Worldchain, DeFi protocols, and mini apps! You can also submit new data by starting a private chat with me.");
   });
   
   // Register all advanced commands (compare, stats, miniapps, trending)
   registerBotCommands(bot, ragSystem);
+  
+  // Data submission command
+  bot.command('submit', async (ctx: Context) => {
+    // Check if in private chat
+    if (!ctx.chat || ctx.chat.type !== 'private') {
+      ctx.reply('Please use the /submit command in a private chat with me for data security.');
+      return;
+    }
+    
+    if (!ctx.message || !('text' in ctx.message)) {
+      ctx.reply('Error processing your submission. Please try again with text content.');
+      return;
+    }
+    
+    const args = ctx.message.text.split(' ').slice(1).join(' ');
+    
+    if (!args) {
+      ctx.reply('To submit protocol data, use: `/submit Protocol Name: Your detailed information`\n\nYour submission will be reviewed by moderators before being added to the database.');
+      return;
+    }
+    
+    // Store the submission in a pending queue (would be implemented with a database in production)
+    const submissionId = Date.now().toString();
+    const submission = {
+      id: submissionId,
+      userId: ctx.from?.id || 0,
+      username: ctx.from?.username || 'Anonymous',
+      content: args,
+      status: 'pending',
+      timestamp: new Date().toISOString()
+    };
+    
+    // In a real implementation, this would save to a database
+    // For demo purposes, we just log it
+    console.log('New data submission:', submission);
+    
+    // Respond to the user
+    ctx.reply(`Thank you for your submission! It has been received and will be reviewed by our team.\n\nSubmission ID: ${submissionId}`);
+    
+    // In a real implementation, this would notify admins about the new submission
+  });
+  
+  // Check submission status
+  bot.command('status', async (ctx: Context) => {
+    if (!ctx.chat || ctx.chat.type !== 'private') {
+      ctx.reply('Please use the /status command in a private chat with me.');
+      return;
+    }
+    
+    if (!ctx.message || !('text' in ctx.message)) {
+      ctx.reply('Error processing your request. Please try again with text content.');
+      return;
+    }
+    
+    const submissionId = ctx.message.text.split(' ').slice(1).join(' ');
+    
+    if (!submissionId) {
+      ctx.reply('Please provide a submission ID. Example: `/status 1234567890`');
+      return;
+    }
+    
+    // In a real implementation, this would check the database
+    ctx.reply(`Submission ID ${submissionId} is currently pending review. You will be notified when it's approved.`);
+  });
   
   // Handle text messages
   bot.on("text", async (ctx) => {
@@ -167,8 +226,17 @@ async function main(): Promise<void> {
   console.log("Bot started with Worldchain DeFi data integration");
 }
 
-// Run the main function
-main().catch(error => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
+/**
+ * Exports a function to start the bot from external entry points
+ */
+export function startBot(): Promise<void> {
+  return main();
+}
+
+// If this file is executed directly, start the bot
+if (import.meta.url.endsWith(process.argv[1])) {
+  startBot().catch(error => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
+}

@@ -537,6 +537,12 @@ bot.on('text', async (ctx) => {
     // Skip if this is a command
     if (ctx.message.text.startsWith('/')) return;
     
+    // Only respond to non-command messages in private chats
+    if (ctx.chat.type !== 'private') {
+      // Silently ignore regular messages in group chats
+      return;
+    }
+    
     const text = ctx.message.text.trim().toLowerCase();
     
     await ctx.replyWithChatAction("typing");

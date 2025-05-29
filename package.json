@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "build": "./build.sh",
+    "build": "echo 'Build step skipped for Railway deployment'",
     "lint": "turbo run lint",
     "start": "node railway-deploy.js",
     "start:local": "node app.js",

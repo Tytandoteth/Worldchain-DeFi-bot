@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
 const defiLlama = require('./defillama-api'); // Import the DeFi Llama API client
+const logger = require('./conversation-logger'); // Import conversation logger
 
 // Initialize environment variables
 dotenv.config();
@@ -26,11 +27,55 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 // Basic command handlers
 bot.start((ctx) => {
-  ctx.reply("Hello! I'm the WorldChain DeFi Information Assistant. I can provide neutral, factual information about Worldchain protocols, DeFi data, and mini apps. Use commands like /help to see what I can do, or simply ask questions in plain text. You can also submit protocol data via private chat.");
+  // Log the start command
+  logger.logConversation(ctx, 'command', '/start', { command: 'start' });
+  
+  // Show privacy notice for first-time users in private chats
+  let message = "Hello! I'm the WorldChain DeFi Information Assistant. I can provide neutral, factual information about Worldchain protocols, DeFi data, and mini apps. Use commands like /help to see what I can do, or simply ask questions in plain text. You can also submit protocol data via private chat.";
+  
+  // Add privacy notice for private chats
+  if (ctx.chat.type === 'private' && !logger.hasShownPrivacyNotice(ctx.from)) {
+    message += '\n\n' + logger.getPrivacyNotice();
+    logger.markPrivacyNoticeShown(ctx.from);
+  }
+  
+  const response = ctx.reply(message);
+  
+  // Log bot response
+  logger.logConversation(ctx, 'bot_response', message, { command: 'start' });
+  
+  return response;
+});
+
+// Privacy command
+bot.command('privacy', (ctx) => {
+  // Log the privacy command
+  logger.logConversation(ctx, 'command', '/privacy', { command: 'privacy' });
+  
+  const privacyText = 
+    "*WorldChain DeFi Information Assistant - Privacy Policy*\n\n" +
+    "We collect anonymized conversation data to improve our responses through AI training and our Retrieval Augmented Generation (RAG) system.\n\n" +
+    "*How we protect your privacy:*\n" +
+    "• All user IDs are anonymized using one-way hashing\n" +
+    "• No personally identifiable information is stored\n" +
+    "• Sensitive data like API keys are automatically redacted\n" +
+    "• All conversation data is automatically deleted after 90 days\n" +
+    "• Data is stored securely following WorldChain security standards\n\n" +
+    "You can continue to use the bot with the confidence that your privacy is protected.";
+  
+  const response = ctx.reply(privacyText, { parse_mode: 'Markdown' });
+  
+  // Log bot response
+  logger.logConversation(ctx, 'bot_response', privacyText, { command: 'privacy' });
+  
+  return response;
 });
 
 // Help command
 bot.help((ctx) => {
+  // Log the help command
+  logger.logConversation(ctx, 'command', '/help', { command: 'help' });
+  
   const helpText = `
 *WorldChain DeFi Information Assistant*
 
@@ -43,16 +88,29 @@ I provide factual information about Worldchain protocols, DeFi statistics, and m
 /trending - View currently active protocols on Worldchain
 /submit - Submit new protocol data for review (use in private chat)
 /status - Check the status of your data submission
+/privacy - View our privacy policy and data practices
 
-You can also ask questions about Worldchain ecosystem in plain text.
+You can also ask questions about Worldchain ecosystem in plain text in private chats.
 `;
-  ctx.reply(helpText, { parse_mode: 'Markdown' });
+  
+  const response = ctx.reply(helpText, { parse_mode: 'Markdown' });
+  
+  // Log bot response
+  logger.logConversation(ctx, 'bot_response', helpText, { command: 'help' });
+  
+  return response;
 });
 
 // Compare command
 bot.command('compare', async (ctx) => {
+  // Log the compare command
+  const commandText = ctx.message && 'text' in ctx.message ? ctx.message.text : '/compare';
+  logger.logConversation(ctx, 'command', commandText, { command: 'compare' });
+  
   if (!ctx.message || !('text' in ctx.message)) {
-    ctx.reply('Error processing your request. Please provide two protocol names to compare.');
+    const errorMsg = 'Error processing your request. Please provide two protocol names to compare.';
+    ctx.reply(errorMsg);
+    logger.logConversation(ctx, 'bot_response', errorMsg, { command: 'compare', error: 'no_text' });
     return;
   }
   
@@ -105,7 +163,20 @@ bot.command('compare', async (ctx) => {
         `\u2022 Chain: ${protocol2Info.chain || 'Multiple'}\n\n` +
         `*Data sourced from DeFi Llama API and updated hourly.*`;
         
-        ctx.reply(comparisonText, { parse_mode: 'Markdown' });
+        const response = ctx.reply(comparisonText, { parse_mode: 'Markdown' });
+        
+        // Log bot response with API data
+        logger.logConversation(ctx, 'bot_response', comparisonText, { 
+          command: 'compare',
+          data_source: 'defillama_api',
+          protocol1_name: protocol1Info.name,
+          protocol2_name: protocol2Info.name,
+          protocol1_tvl: protocol1Info.tvl,
+          protocol2_tvl: protocol2Info.tvl,
+          protocol1_category: protocol1Info.category || 'DeFi',
+          protocol2_category: protocol2Info.category || 'DeFi'
+        });
+        
         return;
       }
     }
@@ -156,13 +227,30 @@ async function fallbackCompareResponse(ctx, protocol1Name, protocol2Name) {
   `\u2022 Description: ${protocol2.description}\n\n` +
   `*Data based on local database with estimated metrics.*`;
   
-  ctx.reply(comparisonText, { parse_mode: 'Markdown' });
+  const response = ctx.reply(comparisonText, { parse_mode: 'Markdown' });
+  
+  // Log bot response with local data
+  logger.logConversation(ctx, 'bot_response', comparisonText, { 
+    command: 'compare',
+    data_source: 'local_database',
+    protocol1_name: protocol1.name,
+    protocol2_name: protocol2.name,
+    protocol1_category: protocol1.category,
+    protocol2_category: protocol2.category,
+    is_fallback: true
+  });
 }
 
 // Stats command
 bot.command('stats', async (ctx) => {
+  // Log the stats command
+  const commandText = ctx.message && 'text' in ctx.message ? ctx.message.text : '/stats';
+  logger.logConversation(ctx, 'command', commandText, { command: 'stats' });
+  
   if (!ctx.message || !('text' in ctx.message)) {
-    ctx.reply('Error processing your request. Please provide a protocol name.');
+    const errorMsg = 'Error processing your request. Please provide a protocol name.';
+    ctx.reply(errorMsg);
+    logger.logConversation(ctx, 'bot_response', errorMsg, { command: 'stats', error: 'no_text' });
     return;
   }
   
@@ -202,7 +290,17 @@ bot.command('stats', async (ctx) => {
         `\u2022 Website: ${protocolInfo.url || 'Not available'}\n\n` +
         `*Data sourced from DeFi Llama API and updated hourly.*`;
         
-        ctx.reply(statsText, { parse_mode: 'Markdown' });
+        const response = ctx.reply(statsText, { parse_mode: 'Markdown' });
+        
+        // Log bot response with API data
+        logger.logConversation(ctx, 'bot_response', statsText, { 
+          command: 'stats',
+          data_source: 'defillama_api',
+          protocol_name: protocolInfo.name,
+          tvl: protocolInfo.tvl,
+          category: protocolInfo.category || 'DeFi'
+        });
+        
         return;
       }
     }
@@ -246,7 +344,17 @@ async function fallbackStatsResponse(ctx, protocolName) {
   `\u2022 Website: ${protocol.website}\n\n` +
   `*Data is based on local database with estimated metrics.*`;
   
-  ctx.reply(statsText, { parse_mode: 'Markdown' });
+  const response = ctx.reply(statsText, { parse_mode: 'Markdown' });
+  
+  // Log bot response with local data
+  logger.logConversation(ctx, 'bot_response', statsText, { 
+    command: 'stats',
+    data_source: 'local_database',
+    protocol_name: protocol.name,
+    tvl: protocol.tvl,
+    category: protocol.category,
+    is_fallback: true
+  });
 }
 
 // Mini apps command
@@ -295,6 +403,9 @@ bot.command('miniapps', async (ctx) => {
 
 // Trending command
 bot.command('trending', async (ctx) => {
+  // Log the trending command
+  logger.logConversation(ctx, 'command', '/trending', { command: 'trending' });
+  
   await ctx.replyWithChatAction("typing");
   
   try {
@@ -312,7 +423,14 @@ bot.command('trending', async (ctx) => {
         }).join('\n\n') + 
         '\n\n*Data is sourced from DeFi Llama and updated hourly.*';
       
-      ctx.reply(trendingText, { parse_mode: 'Markdown' });
+      const response = ctx.reply(trendingText, { parse_mode: 'Markdown' });
+      
+      // Log bot response
+      logger.logConversation(ctx, 'bot_response', trendingText, { 
+        command: 'trending',
+        data_source: 'defillama_api',
+        protocols_count: trendingFromAPI.slice(0, 5).length
+      });
     } else {
       // Fallback to static data if API fails
       fallbackTrendingResponse(ctx);
@@ -350,7 +468,15 @@ async function fallbackTrendingResponse(ctx) {
     }).join('\n\n') + 
     '\n\n*Data is based on local database with estimated metrics.*';
   
-  ctx.reply(trendingText, { parse_mode: 'Markdown' });
+  const response = ctx.reply(trendingText, { parse_mode: 'Markdown' });
+  
+  // Log bot response
+  logger.logConversation(ctx, 'bot_response', trendingText, { 
+    command: 'trending',
+    data_source: 'local_database',
+    protocols_count: withGrowth.length,
+    is_fallback: true
+  });
 }
 
 // Data submission command
@@ -409,47 +535,106 @@ bot.command('status', (ctx) => {
   ctx.reply('You have no pending submissions. In the full version, this command will display the current review status of your submitted protocol data with objective status indicators.');
 });
 
-// DeFi protocols information (simplified database for now)
+// DeFi protocols information based on DeFi Llama data
 const deFiProtocols = {
-  'unidex': {
-    name: 'UniDex',
-    description: 'Decentralized perpetual exchange on WorldChain offering cross-margin trading.',
-    tvl: '$12.8M',
-    category: 'Derivatives',
-    website: 'https://unidex.exchange',
-    launched: 'February 2023 on WorldChain'
-  },
   'morpho': {
     name: 'Morpho',
-    description: 'Lending protocol optimizing liquidity utilization on WorldChain.',
-    tvl: '$18.5M',
+    description: 'Lending protocol optimizing liquidity utilization across multiple chains including WorldChain.',
+    tvl: '$43.99M',
     category: 'Lending',
     website: 'https://morpho.org',
-    launched: 'March 2023 on WorldChain'
+    launched: '2023 on WorldChain',
+    chains: '18 chains'
   },
-  'worldswap': {
-    name: 'WorldSwap',
-    description: 'AMM DEX protocol native to WorldChain ecosystem.',
-    tvl: '$25.2M',
+  're7labs': {
+    name: 'Re7 Labs',
+    description: 'Risk Curators protocol operating across multiple chains including WorldChain.',
+    tvl: '$33.09M',
+    category: 'Risk Curators',
+    website: 'https://re7labs.com',
+    launched: '2023 on WorldChain',
+    chains: '10 chains'
+  },
+  'uniswap': {
+    name: 'Uniswap',
+    description: 'Leading decentralized exchange protocol with presence on WorldChain and many other chains.',
+    tvl: '$5.15M',
     category: 'DEX',
-    website: 'https://worldswap.xyz',
-    launched: 'January 2023 on WorldChain'
+    website: 'https://uniswap.org',
+    launched: '2023 on WorldChain',
+    chains: '35 chains'
   },
-  'worldstable': {
-    name: 'WorldStable',
-    description: 'Decentralized stablecoin protocol on WorldChain.',
-    tvl: '$14.7M',
-    category: 'Stablecoins',
-    website: 'https://worldstable.xyz',
-    launched: 'April 2023 on WorldChain'
+  'pooltogether': {
+    name: 'PoolTogether',
+    description: 'No-loss savings protocol utilizing prize-linked savings accounts across multiple chains.',
+    tvl: '$458,028',
+    category: 'Savings',
+    website: 'https://pooltogether.com',
+    launched: '2023 on WorldChain',
+    chains: '8 chains'
   },
-  'identityfinance': {
-    name: 'Identity Finance',
-    description: 'DeFi protocol leveraging World ID verification for under-collateralized lending.',
-    tvl: '$8.3M',
+  'memewallet': {
+    name: 'Meme Wallet',
+    description: 'Launchpad protocol focused on meme tokens on WorldChain.',
+    tvl: '$14,583',
+    category: 'Launchpad',
+    website: 'https://memewallet.xyz',
+    launched: '2024 on WorldChain',
+    chains: '1 chain'
+  },
+  'magnify': {
+    name: 'Magnify Cash',
+    description: 'Lending protocol native to WorldChain with focus on capital efficiency.',
+    tvl: '$9,280',
     category: 'Lending',
-    website: 'https://identity.finance',
-    launched: 'May 2023 on WorldChain'
+    website: 'https://magnify.cash',
+    launched: '2024 on WorldChain',
+    chains: '1 chain'
+  },
+  'gamma': {
+    name: 'Gamma',
+    description: 'Liquidity management protocol operating across multiple chains including WorldChain.',
+    tvl: '$2,895',
+    category: 'Liquidity manager',
+    website: 'https://gamma.xyz',
+    launched: '2023 on WorldChain',
+    chains: '36 chains'
+  },
+  'dackieswap': {
+    name: 'DackieSwap',
+    description: 'Decentralized exchange with multi-chain presence including WorldChain.',
+    tvl: '$80.26',
+    category: 'DEX',
+    website: 'https://dackieswap.xyz',
+    launched: '2024 on WorldChain',
+    chains: '9 chains'
+  },
+  'fisclend': {
+    name: 'Fisclend Finance',
+    description: 'Lending protocol with focus on cross-chain functionality.',
+    tvl: '$56.05',
+    category: 'Lending',
+    website: 'https://fisclend.finance',
+    launched: '2024 on WorldChain',
+    chains: '3 chains'
+  },
+  'worldle': {
+    name: 'Worldle',
+    description: 'Gaming protocol on WorldChain with integration to World ID.',
+    tvl: '$380',
+    category: 'Gaming',
+    website: 'https://worldle.xyz',
+    launched: '2024 on WorldChain',
+    chains: '1 chain'
+  },
+  'humanfi': {
+    name: 'HumanFi',
+    description: 'DEX Aggregator leveraging proof-of-humanity for enhanced functionality.',
+    tvl: '$61',
+    category: 'DEX Aggregator',
+    website: 'https://humanfi.xyz',
+    launched: '2024 on WorldChain',
+    chains: '1 chain'
   }
 };
 
@@ -544,6 +729,12 @@ bot.on('text', async (ctx) => {
     }
     
     const text = ctx.message.text.trim().toLowerCase();
+    
+    // Log user message for training data (only in private chats for privacy)
+    logger.logConversation(ctx, 'user_message', ctx.message.text, {
+      chat_type: 'private',
+      message_length: ctx.message.text.length
+    });
     
     await ctx.replyWithChatAction("typing");
     

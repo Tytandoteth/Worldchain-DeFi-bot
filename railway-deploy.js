@@ -1,10 +1,10 @@
 // Railway deployment script
 // This file directly includes the necessary modules without requiring a complex build setup
 
-import { Telegraf } from 'telegraf';
-import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
+const { Telegraf } = require('telegraf');
+const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 
 // Initialize environment variables
 dotenv.config();

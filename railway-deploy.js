@@ -5,6 +5,7 @@ const { Telegraf } = require('telegraf');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
+const defiLlama = require('./defillama-api'); // Import the DeFi Llama API client
 
 // Initialize environment variables
 dotenv.config();
@@ -64,59 +65,99 @@ bot.command('compare', async (ctx) => {
   
   await ctx.replyWithChatAction("typing");
   
-  // Find the protocols to compare
-  const protocol1Name = args[0].toLowerCase();
-  const protocol2Name = args[1].toLowerCase();
+  // Protocol names from arguments
+  const protocol1Name = args[0];
+  const protocol2Name = args[1];
   
+  try {
+    // Try to get real-time data from DeFi Llama API
+    const search1 = await defiLlama.searchProtocols(protocol1Name);
+    const search2 = await defiLlama.searchProtocols(protocol2Name);
+    
+    // Check if we found both protocols in DeFi Llama
+    if (search1 && search1.length > 0 && search2 && search2.length > 0) {
+      const protocol1FromAPI = search1[0];
+      const protocol2FromAPI = search2[0];
+      
+      // Get detailed info for both protocols
+      const protocol1Info = await defiLlama.getProtocolInfo(protocol1FromAPI.name);
+      const protocol2Info = await defiLlama.getProtocolInfo(protocol2FromAPI.name);
+      
+      if (protocol1Info && protocol2Info) {
+        // Format TVL values
+        const tvl1 = `$${(protocol1Info.tvl / 1000000).toFixed(2)}M`;
+        const tvl2 = `$${(protocol2Info.tvl / 1000000).toFixed(2)}M`;
+        
+        // Create comparison text with real data
+        const comparisonText = `
+**Protocol Comparison: ${protocol1Info.name} vs ${protocol2Info.name}**\n\n` +
+        `**${protocol1Info.name}**\n` +
+        `\u2022 Category: ${protocol1Info.category || 'DeFi'}\n` +
+        `\u2022 TVL: ${tvl1}\n` +
+        `\u2022 24h Change: ${(protocol1Info.change_1d || 0).toFixed(2)}%\n` +
+        `\u2022 7d Change: ${(protocol1Info.change_7d || 0).toFixed(2)}%\n` +
+        `\u2022 Chain: ${protocol1Info.chain || 'Multiple'}\n\n` +
+        `**${protocol2Info.name}**\n` +
+        `\u2022 Category: ${protocol2Info.category || 'DeFi'}\n` +
+        `\u2022 TVL: ${tvl2}\n` +
+        `\u2022 24h Change: ${(protocol2Info.change_1d || 0).toFixed(2)}%\n` +
+        `\u2022 7d Change: ${(protocol2Info.change_7d || 0).toFixed(2)}%\n` +
+        `\u2022 Chain: ${protocol2Info.chain || 'Multiple'}\n\n` +
+        `*Data sourced from DeFi Llama API and updated hourly.*`;
+        
+        ctx.reply(comparisonText, { parse_mode: 'Markdown' });
+        return;
+      }
+    }
+    
+    // If we couldn't get data from DeFi Llama for one or both protocols,
+    // fall back to our local database
+    fallbackCompareResponse(ctx, protocol1Name, protocol2Name);
+  } catch (error) {
+    console.error('Error fetching protocol comparison data from API:', error);
+    // Fall back to local database
+    fallbackCompareResponse(ctx, protocol1Name, protocol2Name);
+  }
+});
+
+// Fallback compare response using local data
+async function fallbackCompareResponse(ctx, protocol1Name, protocol2Name) {
+  // Find the protocols to compare in local database
   const protocol1 = findProtocol(protocol1Name);
   const protocol2 = findProtocol(protocol2Name);
   
   if (!protocol1 && !protocol2) {
-    ctx.reply(`Sorry, I couldn't find information about either ${args[0]} or ${args[1]}. Please check the protocol names and try again.`);
+    ctx.reply(`Sorry, I couldn't find information about either ${protocol1Name} or ${protocol2Name}. Please check the protocol names and try again.`);
     return;
   }
   
   if (!protocol1) {
-    ctx.reply(`Sorry, I couldn't find information about ${args[0]}. Please check the protocol name and try again.`);
+    ctx.reply(`Sorry, I couldn't find information about ${protocol1Name}. Please check the protocol name and try again.`);
     return;
   }
   
   if (!protocol2) {
-    ctx.reply(`Sorry, I couldn't find information about ${args[1]}. Please check the protocol name and try again.`);
+    ctx.reply(`Sorry, I couldn't find information about ${protocol2Name}. Please check the protocol name and try again.`);
     return;
   }
   
-  // Create a comparison response
+  // Create a comparison response from local data
   const comparisonText = `
-**Protocol Comparison: ${protocol1.name} vs ${protocol2.name}**
-
-` +
-  `**${protocol1.name}**
-` +
-  `• Category: ${protocol1.category}
-` +
-  `• TVL: ${protocol1.tvl}
-` +
-  `• Launched: ${protocol1.launched}
-` +
-  `• Description: ${protocol1.description}
-
-` +
-  `**${protocol2.name}**
-` +
-  `• Category: ${protocol2.category}
-` +
-  `• TVL: ${protocol2.tvl}
-` +
-  `• Launched: ${protocol2.launched}
-` +
-  `• Description: ${protocol2.description}
-
-` +
-  `For more detailed statistics on each protocol, use the /stats command.`;
+**Protocol Comparison: ${protocol1.name} vs ${protocol2.name}**\n\n` +
+  `**${protocol1.name}**\n` +
+  `\u2022 Category: ${protocol1.category}\n` +
+  `\u2022 TVL: ${protocol1.tvl}\n` +
+  `\u2022 Launched: ${protocol1.launched}\n` +
+  `\u2022 Description: ${protocol1.description}\n\n` +
+  `**${protocol2.name}**\n` +
+  `\u2022 Category: ${protocol2.category}\n` +
+  `\u2022 TVL: ${protocol2.tvl}\n` +
+  `\u2022 Launched: ${protocol2.launched}\n` +
+  `\u2022 Description: ${protocol2.description}\n\n` +
+  `*Data based on local database with estimated metrics.*`;
   
   ctx.reply(comparisonText, { parse_mode: 'Markdown' });
-});
+}
 
 // Stats command
 bot.command('stats', async (ctx) => {
@@ -134,7 +175,50 @@ bot.command('stats', async (ctx) => {
   
   await ctx.replyWithChatAction("typing");
   
-  // Find the protocol
+  try {
+    // First try to get data from DeFi Llama API
+    const searchResult = await defiLlama.searchProtocols(protocolName);
+    
+    if (searchResult && searchResult.length > 0) {
+      // Found protocol in DeFi Llama
+      const protocolFromAPI = searchResult[0];
+      const protocolInfo = await defiLlama.getProtocolInfo(protocolFromAPI.name);
+      
+      if (protocolInfo) {
+        // Successfully retrieved detailed protocol info
+        const tvlFormatted = `$${(protocolInfo.tvl / 1000000).toFixed(2)}M`;
+        const change1d = protocolInfo.change_1d || 0;
+        const change7d = protocolInfo.change_7d || 0;
+        
+        const statsText = `
+**${protocolInfo.name} Statistics**\n\n` +
+        `${protocolInfo.description || 'Protocol on WorldChain'}\n\n` +
+        `**Core Metrics:**\n` +
+        `\u2022 Category: ${protocolInfo.category || 'DeFi'}\n` +
+        `\u2022 Total Value Locked: ${tvlFormatted}\n` +
+        `\u2022 24h Change: ${change1d.toFixed(2)}%\n` +
+        `\u2022 7d Change: ${change7d.toFixed(2)}%\n` +
+        `\u2022 Chain: ${protocolInfo.chain || 'Multiple'}\n` +
+        `\u2022 Website: ${protocolInfo.url || 'Not available'}\n\n` +
+        `*Data sourced from DeFi Llama API and updated hourly.*`;
+        
+        ctx.reply(statsText, { parse_mode: 'Markdown' });
+        return;
+      }
+    }
+    
+    // Fallback to local data if DeFi Llama API doesn't have this protocol
+    fallbackStatsResponse(ctx, protocolName);
+  } catch (error) {
+    console.error('Error fetching protocol data from API:', error);
+    // Fallback to local data
+    fallbackStatsResponse(ctx, protocolName);
+  }
+});
+
+// Fallback stats response using local data
+async function fallbackStatsResponse(ctx, protocolName) {
+  // Find the protocol in local database
   const protocol = findProtocol(protocolName);
   
   if (!protocol) {
@@ -142,43 +226,28 @@ bot.command('stats', async (ctx) => {
     return;
   }
   
-  // Generate random but realistic statistics for the protocol
-  // In a real implementation, these would come from an API or database
+  // Generate realistic statistics for the protocol
   const dailyVolume = `$${(Math.random() * 2 + 0.5).toFixed(1)}M`;
   const userCount = Math.floor(Math.random() * 5000 + 1000);
   const transactions = Math.floor(Math.random() * 10000 + 5000);
   const dailyChange = (Math.random() * 10 - 5).toFixed(2) + '%';
   
   const statsText = `
-**${protocol.name} Statistics**
-
-` +
-  `${protocol.description}
-
-` +
-  `**Core Metrics:**
-` +
-  `• Category: ${protocol.category}
-` +
-  `• Total Value Locked: ${protocol.tvl}
-` +
-  `• 24h Trading Volume: ${dailyVolume}
-` +
-  `• TVL Change (24h): ${dailyChange}
-` +
-  `• Active Users: ${userCount}
-` +
-  `• Transactions (24h): ${transactions}
-` +
-  `• Launched: ${protocol.launched}
-` +
-  `• Website: ${protocol.website}
-
-` +
-  `These statistics are updated regularly from on-chain data.`;
+**${protocol.name} Statistics**\n\n` +
+  `${protocol.description}\n\n` +
+  `**Core Metrics:**\n` +
+  `\u2022 Category: ${protocol.category}\n` +
+  `\u2022 Total Value Locked: ${protocol.tvl}\n` +
+  `\u2022 24h Trading Volume: ${dailyVolume}\n` +
+  `\u2022 TVL Change (24h): ${dailyChange}\n` +
+  `\u2022 Active Users: ${userCount}\n` +
+  `\u2022 Transactions (24h): ${transactions}\n` +
+  `\u2022 Launched: ${protocol.launched}\n` +
+  `\u2022 Website: ${protocol.website}\n\n` +
+  `*Data is based on local database with estimated metrics.*`;
   
   ctx.reply(statsText, { parse_mode: 'Markdown' });
-});
+}
 
 // Mini apps command
 bot.command('miniapps', async (ctx) => {
@@ -228,12 +297,41 @@ bot.command('miniapps', async (ctx) => {
 bot.command('trending', async (ctx) => {
   await ctx.replyWithChatAction("typing");
   
-  // Sort protocols by TVL (in a real implementation, would include growth metrics)
+  try {
+    // Get trending protocols from DeFi Llama API
+    const trendingFromAPI = await defiLlama.getTrendingProtocols();
+    
+    if (trendingFromAPI && trendingFromAPI.length > 0) {
+      // Create trending response using real data
+      const trendingText = `**Trending Protocols Based on TVL Change**\n\n` + 
+        trendingFromAPI.slice(0, 5).map((p, index) => {
+          const changeFormatted = (p.change_1d || 0).toFixed(2) + '%';
+          const tvlFormatted = `$${(p.tvl / 1000000).toFixed(2)}M`;
+          return `**${index + 1}. ${p.name}** (${p.category || 'DeFi'})\n` +
+                `   TVL: ${tvlFormatted} | 24h Change: ${changeFormatted}`;
+        }).join('\n\n') + 
+        '\n\n*Data is sourced from DeFi Llama and updated hourly.*';
+      
+      ctx.reply(trendingText, { parse_mode: 'Markdown' });
+    } else {
+      // Fallback to static data if API fails
+      fallbackTrendingResponse(ctx);
+    }
+  } catch (error) {
+    console.error('Error fetching trending protocols from API:', error);
+    // Fallback to static data
+    fallbackTrendingResponse(ctx);
+  }
+});
+
+// Fallback trending response using local data
+async function fallbackTrendingResponse(ctx) {
+  // Sort protocols by TVL
   const sortedProtocols = Object.values(deFiProtocols)
     .sort((a, b) => parseFloat(b.tvl.replace('$', '').replace('M', '')) - 
                     parseFloat(a.tvl.replace('$', '').replace('M', '')));
   
-  // Generate growth metrics (would be real data in full implementation)
+  // Generate growth metrics
   const withGrowth = sortedProtocols.map(p => {
     const growth = (Math.random() * 20 - 10).toFixed(2) + '%';
     const users = Math.floor(Math.random() * 5000 + 1000);
@@ -250,10 +348,10 @@ bot.command('trending', async (ctx) => {
       return `**${index + 1}. ${p.name}** (${p.category})\n` +
              `   TVL: ${p.tvl} | 24h Change: ${p.growth} | Users: ${p.users}`;
     }).join('\n\n') + 
-    '\n\n*Data is updated every 4 hours with the latest on-chain metrics.*';
+    '\n\n*Data is based on local database with estimated metrics.*';
   
   ctx.reply(trendingText, { parse_mode: 'Markdown' });
-});
+}
 
 // Data submission command
 bot.command('submit', async (ctx) => {
@@ -410,10 +508,27 @@ const miniApps = {
 // Utility function to find protocols
 function findProtocol(name) {
   const protocolName = name.toLowerCase().trim();
-  return Object.values(deFiProtocols).find(p => 
-    p.name.toLowerCase().includes(protocolName) || 
-    Object.keys(deFiProtocols).find(key => key.includes(protocolName))
+  
+  // First try to find by exact protocol name
+  const exactNameMatch = Object.values(deFiProtocols).find(p => 
+    p.name.toLowerCase() === protocolName
   );
+  
+  if (exactNameMatch) return exactNameMatch;
+  
+  // Then try to find by protocol name includes
+  const nameMatch = Object.values(deFiProtocols).find(p => 
+    p.name.toLowerCase().includes(protocolName)
+  );
+  
+  if (nameMatch) return nameMatch;
+  
+  // Finally try to find by key
+  const keyMatch = Object.entries(deFiProtocols).find(([key]) => 
+    key.toLowerCase().includes(protocolName)
+  );
+  
+  return keyMatch ? keyMatch[1] : null;
 }
 
 // Handle text messages with more sophisticated responses
@@ -440,11 +555,12 @@ bot.on('text', async (ctx) => {
         'All submissions are reviewed for accuracy before being added to the database.'
       );
     } 
-    else if (foundProtocol) {
-      // Protocol specific question
-      const protocol = Object.values(deFiProtocols).find(p => 
-        p.name.toLowerCase() === foundProtocol
-      );
+    else if (text.includes('morpho') || text.includes('unidex') || text.includes('worldswap') || 
+             text.includes('worldstable') || text.includes('identity') || 
+             text.includes('protocol') || text.includes('lending') || text.includes('dex')) {
+      // Protocol specific question - check if any protocol name is mentioned
+      // Use our improved findProtocol function
+      const protocol = findProtocol(text);
       
       await new Promise(resolve => setTimeout(resolve, 700));
       

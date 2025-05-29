@@ -1,15 +1,15 @@
-# WorldChain DeFi Bot
+# WorldChain DeFi Information Assistant
 
-A Telegram bot providing detailed information about Worldchain protocols, DeFi data, and mini apps, with user data submission capabilities.
+A neutral, factual Telegram bot providing objective information about WorldChain protocols, DeFi data, and mini applications. This bot serves as an informational resource for the WorldChain ecosystem and allows users to submit protocol data for review.
 
 ## Features
 
-- **Protocol Information**: Get detailed information about protocols on WorldChain
-- **Protocol Comparison**: Compare different protocols with the `/compare` command
-- **Protocol Statistics**: Get detailed statistics with the `/stats` command
-- **Mini Apps Exploration**: Discover mini apps on WorldChain with the `/miniapps` command
-- **Trending Protocols**: See what's trending with the `/trending` command
-- **User Data Submission**: Users can submit new protocol data via private messages
+- **Protocol Information**: Access factual details about WorldChain protocols, including Total Value Locked (TVL), technical statistics, and deployment information.
+- **Protocol Comparison**: Compare different protocols using objective metrics and data points.
+- **Mini Application Directory**: Discover mini applications available on WorldChain with factual descriptions of their functionalities.
+- **DeFi Analytics**: Access current data on DeFi trends, performance metrics, and activity indicators.
+- **User Data Submission**: Submit protocol data for review through a structured process that emphasizes factual accuracy.
+- **Regular Updates**: Receive systematic updates on ecosystem developments based on verifiable data sources.
 
 ## Project Structure
 
@@ -66,26 +66,45 @@ npm run dev
 
 ### Railway Deployment (Recommended)
 
-This bot is configured for easy deployment on Railway:
+### Prerequisites
+- A Railway account: [railway.app](https://railway.app)
+- Git repository for your project
 
-1. **Create a Railway account** at [railway.app](https://railway.app) if you don't have one
+### Option 1: Deploy via Railway Dashboard
 
-2. **Install Railway CLI** (optional, for easy deployment)
+1. Log in to [Railway](https://railway.app)
+2. Create a new project
+3. Select "Deploy from GitHub repo"
+4. Connect your GitHub account and select this repository
+5. Configure the following environment variables in the Railway dashboard:
+   - `TELEGRAM_BOT_TOKEN`: Your Telegram bot token from BotFather
+   - `OPENAI_API_KEY`: Your OpenAI API key for AI capabilities
+   - Optional: `DATA_SUBMISSIONS_ADMIN_CHAT_ID`: Telegram chat ID to receive submission notifications
+
+### Option 2: Deploy via Railway CLI
+
+1. Install Railway CLI:
    ```bash
    npm i -g @railway/cli
+   ```
+
+2. Log in to Railway:
+   ```bash
    railway login
    ```
 
-3. **Deploy using Railway Dashboard**
-   - Create a new project in Railway
-   - Connect your GitHub repository or use the CLI: `railway init`
-   - Add environment variables in Railway Dashboard:
-     - `OPENAI_API_KEY`
-     - `TELEGRAM_BOT_TOKEN`
-     - `DATA_SUBMISSIONS_ADMIN_CHAT_ID` (optional)
-   - Deploy the project
+3. Link your project:
+   ```bash
+   railway link
+   ```
 
-4. **Deploy using Railway CLI**
+4. Set required environment variables:
+   ```bash
+   railway variables set TELEGRAM_BOT_TOKEN=your_telegram_token
+   railway variables set OPENAI_API_KEY=your_openai_api_key
+   ```
+
+5. Deploy your application:
    ```bash
    railway up
    ```

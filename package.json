@@ -11,7 +11,8 @@
     "build": "echo 'Build step skipped for Railway deployment'",
     "lint": "turbo run lint",
     "start": "node railway-deploy.js",
-    "start:local": "node app.js",
+    "start:local": "node railway-deploy.js",
+    "start:enhanced": "node main.js",
     "railway": "node railway-deploy.js"
   },
   "devDependencies": {

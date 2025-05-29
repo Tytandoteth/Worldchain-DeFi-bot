@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const defiLlama = require('./defillama-api'); // Import the DeFi Llama API client
 const logger = require('./conversation-logger'); // Import conversation logger
+const botBootstrap = require('./bot-bootstrap'); // Import enhanced bot bootstrapper
 
 // Initialize environment variables
 dotenv.config();
@@ -142,9 +143,49 @@ bot.command('compare', async (ctx) => {
       const protocol2Info = await defiLlama.getProtocolInfo(protocol2FromAPI.name);
       
       if (protocol1Info && protocol2Info) {
-        // Format TVL values
-        const tvl1 = `$${(protocol1Info.tvl / 1000000).toFixed(2)}M`;
-        const tvl2 = `$${(protocol2Info.tvl / 1000000).toFixed(2)}M`;
+        // Format TVL values with error handling
+        let tvl1 = 'Unknown';
+        let tvl2 = 'Unknown';
+        
+        // Format first protocol TVL
+        if (protocol1Info.tvl) {
+          if (typeof protocol1Info.tvl === 'string' && protocol1Info.tvl.startsWith('$')) {
+            tvl1 = protocol1Info.tvl;
+          } else {
+            const tvlValue = parseFloat(protocol1Info.tvl);
+            if (!isNaN(tvlValue)) {
+              if (tvlValue >= 1000000000) {
+                tvl1 = `$${(tvlValue / 1000000000).toFixed(2)}B`;
+              } else if (tvlValue >= 1000000) {
+                tvl1 = `$${(tvlValue / 1000000).toFixed(2)}M`;
+              } else if (tvlValue >= 1000) {
+                tvl1 = `$${(tvlValue / 1000).toFixed(2)}K`;
+              } else {
+                tvl1 = `$${tvlValue.toFixed(2)}`;
+              }
+            }
+          }
+        }
+        
+        // Format second protocol TVL
+        if (protocol2Info.tvl) {
+          if (typeof protocol2Info.tvl === 'string' && protocol2Info.tvl.startsWith('$')) {
+            tvl2 = protocol2Info.tvl;
+          } else {
+            const tvlValue = parseFloat(protocol2Info.tvl);
+            if (!isNaN(tvlValue)) {
+              if (tvlValue >= 1000000000) {
+                tvl2 = `$${(tvlValue / 1000000000).toFixed(2)}B`;
+              } else if (tvlValue >= 1000000) {
+                tvl2 = `$${(tvlValue / 1000000).toFixed(2)}M`;
+              } else if (tvlValue >= 1000) {
+                tvl2 = `$${(tvlValue / 1000).toFixed(2)}K`;
+              } else {
+                tvl2 = `$${tvlValue.toFixed(2)}`;
+              }
+            }
+          }
+        }
         
         // Create comparison text with real data
         const comparisonText = `
@@ -274,9 +315,32 @@ bot.command('stats', async (ctx) => {
       
       if (protocolInfo) {
         // Successfully retrieved detailed protocol info
-        const tvlFormatted = `$${(protocolInfo.tvl / 1000000).toFixed(2)}M`;
-        const change1d = protocolInfo.change_1d || 0;
-        const change7d = protocolInfo.change_7d || 0;
+        // Format TVL properly with error handling
+        let tvlFormatted = 'Unknown';
+        if (protocolInfo.tvl) {
+          // Check if TVL is already formatted as a string with $ and M/B/etc.
+          if (typeof protocolInfo.tvl === 'string' && protocolInfo.tvl.startsWith('$')) {
+            tvlFormatted = protocolInfo.tvl;
+          } else {
+            // Format TVL based on size
+            const tvlValue = parseFloat(protocolInfo.tvl);
+            if (!isNaN(tvlValue)) {
+              if (tvlValue >= 1000000000) {
+                tvlFormatted = `$${(tvlValue / 1000000000).toFixed(2)}B`;
+              } else if (tvlValue >= 1000000) {
+                tvlFormatted = `$${(tvlValue / 1000000).toFixed(2)}M`;
+              } else if (tvlValue >= 1000) {
+                tvlFormatted = `$${(tvlValue / 1000).toFixed(2)}K`;
+              } else {
+                tvlFormatted = `$${tvlValue.toFixed(2)}`;
+              }
+            }
+          }
+        }
+        
+        // Handle change percentages with proper error checking
+        const change1d = typeof protocolInfo.change_1d === 'number' ? protocolInfo.change_1d : 0;
+        const change7d = typeof protocolInfo.change_7d === 'number' ? protocolInfo.change_7d : 0;
         
         const statsText = `
 **${protocolInfo.name} Statistics**\n\n` +
@@ -831,15 +895,19 @@ bot.catch((err, ctx) => {
 });
 
 // Start the bot
-bot.launch()
-  .then(() => {
-    console.log('WorldChain DeFi Bot started successfully!');
-  })
-  .catch((err) => {
-    console.error('Failed to start bot:', err);
-    process.exit(1);
-  });
+console.log('Starting WorldChain DeFi Bot...');
+bot.launch().then(() => {
+  console.log('Bot is running!');
+}).catch(error => {
+  console.error('Error starting bot:', error);
+});
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+// Export utility functions for use in the enhanced version
+module.exports = {
+  deFiProtocols,
+  findProtocol
+};

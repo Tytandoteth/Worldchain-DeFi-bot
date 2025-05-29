@@ -1,6 +1,6 @@
 import { Context, Telegraf } from "telegraf";
-import { askGPT } from "../../core/dist/openai.js";
-import { createRAG } from "../../core/dist/simple-rag.js";
+import { askGPT } from "../../core/src/openai.js";
+import { createRAG } from "../../core/src/simple-rag.js";
 
 /**
  * Register all command handlers for the Telegram bot
@@ -30,7 +30,7 @@ export function registerBotCommands(bot: Telegraf, ragSystem: any): void {
     
     const answer = await askGPT(
       query,
-      `You are MAGI AI comparing Worldchain protocols. Use the following context to create a detailed comparison: ${context}`
+      `You are WorldChain DeFi Bot comparing Worldchain protocols. Use the following context to create a detailed comparison: ${context}`
     );
     
     ctx.reply(answer, { parse_mode: 'Markdown' });
@@ -55,7 +55,7 @@ export function registerBotCommands(bot: Telegraf, ragSystem: any): void {
     
     const answer = await askGPT(
       query,
-      `You are MAGI AI providing detailed statistics about ${protocol}. Include TVL, user metrics, and other key statistics from the following context: ${context}`
+      `You are WorldChain DeFi Bot providing detailed statistics about ${protocol}. Include TVL, user metrics, and other key statistics from the following context: ${context}`
     );
     
     ctx.reply(answer, { parse_mode: 'Markdown' });
@@ -78,7 +78,7 @@ export function registerBotCommands(bot: Telegraf, ragSystem: any): void {
     
     const answer = await askGPT(
       query,
-      `You are MAGI AI providing information about Worldchain mini apps. ${category ? `Focus on ${category} category.` : 'Give an overview of different categories.'} Use this context: ${context}`
+      `You are WorldChain DeFi Bot providing information about Worldchain mini apps. ${category ? `Focus on ${category} category.` : 'Give an overview of different categories.'} Use this context: ${context}`
     );
     
     ctx.reply(answer, { parse_mode: 'Markdown' });
@@ -94,7 +94,7 @@ export function registerBotCommands(bot: Telegraf, ragSystem: any): void {
     
     const answer = await askGPT(
       query,
-      `You are MAGI AI providing information about trending protocols on Worldchain. Focus on recent growth, TVL changes, and user activity. Use this context: ${context}`
+      `You are WorldChain DeFi Bot providing information about trending protocols on Worldchain. Focus on recent growth, TVL changes, and user activity. Use this context: ${context}`
     );
     
     ctx.reply(answer, { parse_mode: 'Markdown' });
@@ -103,21 +103,20 @@ export function registerBotCommands(bot: Telegraf, ragSystem: any): void {
   // Help command with expanded functionality
   bot.help((ctx: Context) => {
     const helpText = `
-*MAGI AI Bot - Worldchain Assistant*
+*WorldChain DeFi Bot - Worldchain Assistant*
 
 I can help you with information about Worldchain protocols, DeFi stats, and mini apps.
 
 *Available Commands:*
-• /start - Start a conversation with me
-• /help - Show this help message
-• /compare [protocol1] [protocol2] - Compare two Worldchain protocols
-• /stats [protocol] - Get detailed stats for a protocol
-• /miniapps [category] - List mini apps, optionally filtered by category
-• /trending - Show trending protocols on Worldchain
+/compare - Compare two protocols (e.g., /compare Morpho Magnify)
+/stats - Get detailed stats about a protocol (e.g., /stats Magnify)
+/miniapps - Explore Worldchain mini apps (e.g., /miniapps gaming)
+/trending - See trending protocols on Worldchain
+/submit - Submit new protocol data for review (use in private chat)
+/status - Check the status of your data submission
 
-You can also just ask me questions in natural language about Worldchain and its ecosystem!
-    `;
-    
+Or just ask me anything about Worldchain and DeFi!
+`;
     ctx.reply(helpText, { parse_mode: 'Markdown' });
   });
 }
